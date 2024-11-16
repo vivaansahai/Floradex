@@ -1,5 +1,7 @@
 import React from 'react';
+import { Tabs } from 'expo-router';
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
 import TabBar from 'rn-animated-wave-bottom-navigation';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
@@ -10,22 +12,29 @@ import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-const AnimatedWaveBottomTab = () => {
+export default function AnimatedWaveBottomTab() {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Tab.Navigator
+      <NavigationContainer>
+        <Tab.Navigator
         initialRouteName="HomeScreen"
+        screenOptions= {{
+          tabBarShowLabel: false,
+        }}
         tabBar={(props: BottomTabBarProps) => (
           <TabBar
             {...props} // Spread the props correctly
             numOfTabs={5} 
-            icons={['home', 'search', 'camera', 'heart', 'settings']} 
+            icons={['home', 'search', 'camera', 'heart', 'settings']}
+            
           />
         )}
+
       >
         <Tab.Group
           screenOptions={{
             headerShown: false,
+            tabBarShowLabel: false
           }}
         >
           <Tab.Screen options={{ tabBarLabel: 'Home' }} name="HomeScreen" component={HomeScreen} />
@@ -35,9 +44,10 @@ const AnimatedWaveBottomTab = () => {
           <Tab.Screen options={{ tabBarLabel: 'Profile' }} name="Profile" component={ProfileScreen} />
         </Tab.Group>
       </Tab.Navigator>
+    </NavigationContainer>
     </SafeAreaView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -46,4 +56,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AnimatedWaveBottomTab;
+

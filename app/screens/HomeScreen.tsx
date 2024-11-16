@@ -46,7 +46,7 @@ export default function HomeScreen({ navigation }: any) {
       </Text>
       {/* Updated Image source */}
       <Image
-        source={require('C:/Users/vivaa/floradex/assets/images/Plant.png')} // Use relative path to your image file
+        source={require('../../assets/images/plant.png')} // Use relative path to your image file
         style={styles.image}
         resizeMode="contain"
       />
