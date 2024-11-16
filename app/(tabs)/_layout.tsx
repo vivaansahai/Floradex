@@ -1,37 +1,49 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
+import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import TabBar from 'rn-animated-wave-bottom-navigation';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import HomeScreen from '../screens/HomeScreen';
+import SearchPlants from '../screens/SearchPlants';
+import Scanner from '../screens/Scanner';
+import FavouritePlants from '../screens/FavouritePlants';
+import ProfileScreen from '../screens/ProfileScreen';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+const Tab = createBottomTabNavigator();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const AnimatedWaveBottomTab = () => {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <SafeAreaView style={styles.safeArea}>
+      <Tab.Navigator
+        initialRouteName="HomeScreen"
+        tabBar={(props: BottomTabBarProps) => (
+          <TabBar
+            {...props} // Spread the props correctly
+            numOfTabs={5} 
+            icons={['home', 'search', 'camera', 'heart', 'settings']} 
+          />
+        )}
+      >
+        <Tab.Group
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Tab.Screen options={{ tabBarLabel: 'Home' }} name="HomeScreen" component={HomeScreen} />
+          <Tab.Screen options={{ tabBarLabel: 'Search' }} name="Search" component={SearchPlants} />
+          <Tab.Screen options={{ tabBarLabel: 'Scan' }} name="Scan" component={Scanner} />
+          <Tab.Screen options={{ tabBarLabel: 'Library' }} name="Library" component={FavouritePlants} />
+          <Tab.Screen options={{ tabBarLabel: 'Profile' }} name="Profile" component={ProfileScreen} />
+        </Tab.Group>
+      </Tab.Navigator>
+    </SafeAreaView>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+});
+
+export default AnimatedWaveBottomTab;
