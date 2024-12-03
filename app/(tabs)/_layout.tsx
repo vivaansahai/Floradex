@@ -36,8 +36,12 @@ export function AnimatedWaveBottomTab() {
         <Tab.Group
           screenOptions={{
             headerShown: false,
-            tabBarShowLabel: false
-          }}
+            tabBarShowLabel: false,
+            tabBarStyle: {
+              backgroundColor: 'black',
+            },
+          }
+        }
         >
           <Tab.Screen options={{ tabBarLabel: 'Home' }} name="HomeScreen" component={HomeScreen} />
           <Tab.Screen options={{ tabBarLabel: 'Search' }} name="Search" component={SearchPlants} />

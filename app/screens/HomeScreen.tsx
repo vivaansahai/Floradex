@@ -1,12 +1,27 @@
-import * as React from 'react';
-import { View, Text, Image, StyleSheet, useColorScheme, PermissionsAndroid } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  useColorScheme,
+  PermissionsAndroid,
+  Modal,
+  Button,
+  ScrollView,
+} from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '@/hooks/styles';
 import PagerView from 'react-native-pager-view';
 import { identifyPlant } from './Identification'; // Import the identifyPlant function
+import { generateContent as fetchPlantInfo } from '../Utilities/location';
 
-const requestCameraPermission = async () => {
+const requestCameraPermission = async (
+  setModalVisible,
+  setGeneratedContent,
+  setSelectedImage
+) => {
   try {
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -20,7 +35,13 @@ const requestCameraPermission = async () => {
     );
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('Camera permission granted, executing API call...');
-      const species = await identifyPlant();
+      const { species, imageUri } = await identifyPlant(); // Destructure species and imageUri
+      setSelectedImage(imageUri); // Set the selected image in state
+      const response = await fetchPlantInfo(species);
+
+      // Set content and show modal
+      setGeneratedContent(formatBoldText(response));
+      setModalVisible(true);
     } else {
       console.log('Camera permission denied');
     }
@@ -29,7 +50,26 @@ const requestCameraPermission = async () => {
   }
 };
 
+const formatBoldText = (text) => {
+  const parts = text.split(/(\*\*.*?\*\*)/); // Split text by **bold segments**
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      // Remove ** and return bold Text component
+      return (
+        <Text key={index} style={{ fontWeight: 'bold' }}>
+          {part.slice(2, -2)}
+        </Text>
+      );
+    }
+    return <Text key={index}>{part}</Text>; // Regular text
+  });
+};
+
 export default function HomeScreen() {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null); // State to store the selected image URI
+
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -53,7 +93,13 @@ export default function HomeScreen() {
       <ThemedButton
         name="rick"
         type="primary"
-        onPress={requestCameraPermission} // Execute API call on button press
+        onPress={() =>
+          requestCameraPermission(
+            setModalVisible,
+            setGeneratedContent,
+            setSelectedImage
+          )
+        } // Execute API call on button press
         backgroundColor="lightgreen"
         textColor="green"
         borderColor="lightgreen"
@@ -64,9 +110,8 @@ export default function HomeScreen() {
       </ThemedButton>
       {/* Updated carousel with plant-specific content */}
       <PagerView style={[styles.pagerView, { marginTop: 40 }]} initialPage={0}>
-        <View style={[styles.roundedBox, {padding:20}]} key="1">
+        <View style={[styles.roundedBox, { padding: 20 }]} key="1">
           <Image
-          
             source={require('../../assets/images/carousel_1.jpg')} // Moneyplant image
             style={[styles.image, { width: '100%', height: 300 }]}
             resizeMode="contain"
@@ -96,8 +141,61 @@ export default function HomeScreen() {
           </Text>
         </View>
       </PagerView>
+
+      {/* Modal to display generated content */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={modalStyles.modalContainer}>
+          <View style={modalStyles.modalContent}>
+            {selectedImage && (
+              <Image
+                source={{ uri: selectedImage }}
+                style={modalStyles.selectedImage}
+                resizeMode="contain"
+              />
+            )}
+            <ScrollView>
+              {generatedContent.map((element, index) => (
+                <Text key={index} style={modalStyles.text}>
+                  {element}
+                </Text>
+              ))}
+            </ScrollView>
+            <Button title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
-
+const modalStyles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  selectedImage: {
+    width: '100%',
+    height: 200,
+    marginBottom: 20,
+    borderRadius: 10,
+  },
+  text: {
+    marginBottom: 10,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+});
