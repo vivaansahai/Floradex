@@ -2,6 +2,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import axios from 'axios';
 import { Alert } from 'react-native';
+import { collection, addDoc } from 'firebase/firestore';
+import { FIRESTORE_DB } from '@/FirebaseConfig'; // Adjust import to match your Firebase configuration
 
 /**
  * Function to send the image to the API and handle the response.
@@ -31,9 +33,12 @@ export const fetchPlantIdentification = async (formData) => {
   }
 };
 
+
+
 /**
  * Function to identify the plant from a captured image URI.
  * @param {string} imageUri - The URI of the captured image.
+ * @param {string} userId - The user ID.
  * @returns {Object} - Contains the identified species and the image URI.
  */
 export const identifyPlant = async (imageUri) => {
@@ -57,6 +62,9 @@ export const identifyPlant = async (imageUri) => {
     // Call the fetchPlantIdentification function
     const species = await fetchPlantIdentification(formData);
 
+    // Store species and userId in Firestore
+    
+
     return { species, imageUri }; // Return both species and image URI
   } catch (error) {
     console.error('Error in plant identification:', error.message);
@@ -69,6 +77,7 @@ export const identifyPlant = async (imageUri) => {
 
 /**
  * Function to pick an image using the ImagePicker and identify the plant.
+ * @param {string} userId - The user ID.
  */
 export const pickImageAndIdentifyPlant = async () => {
   try {
@@ -89,7 +98,7 @@ export const pickImageAndIdentifyPlant = async () => {
     const imageUri = result.assets[0].uri;
     console.log('Selected Image URI:', imageUri);
 
-    // Call the identifyPlant function with the selected image URI
+    // Call the identifyPlant function with the selected image URI and userId
     const identificationResult = await identifyPlant(imageUri);
 
     console.log('Plant Identification Result:', identificationResult);

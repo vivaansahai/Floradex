@@ -16,6 +16,7 @@ import { styles } from '@/hooks/styles';
 import PagerView from 'react-native-pager-view';
 import { identifyPlant, pickImageAndIdentifyPlant } from './Identification'; // Import the identifyPlant function
 import { generateContent as fetchPlantInfo } from '../Utilities/location';
+import { getAuth } from 'firebase/auth';
 
 const requestCameraPermission = async (
   setModalVisible,
@@ -39,7 +40,7 @@ const requestCameraPermission = async (
       if(species!=null)
       {
         setSelectedImage(imageUri); // Set the selected image in state
-      const response = await fetchPlantInfo(species);
+      const response = await fetchPlantInfo(species,getAuth().currentUser?.uid);
 
       // Set content and show modal
       setGeneratedContent(formatBoldText(response));

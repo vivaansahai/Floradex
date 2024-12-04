@@ -13,6 +13,7 @@ import {
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { identifyPlant } from './Identification';
 import { generateContent as fetchPlantInfo } from '../Utilities/location'; // Import fetchPlantInfo
+import { getAuth } from 'firebase/auth';
 
 const Scanner: React.FC = () => {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -58,7 +59,7 @@ const Scanner: React.FC = () => {
         setCapturedImage(photo.uri);
 
         // Identify the plant using the captured image
-        const response = await identifyPlant(photo.uri);
+        const response = await identifyPlant(photo.uri,getAuth().currentUser?.uid);
         if (response?.species) {
           const plantName = response.species;
 

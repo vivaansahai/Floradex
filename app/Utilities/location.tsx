@@ -1,6 +1,9 @@
+import { FIRESTORE_DB } from '@/FirebaseConfig';
 import axios from 'axios';
+import { addDoc, collection } from 'firebase/firestore';
 
-export const generateContent = async (detected) => {
+
+export const generateContent = async (detected,userId) => {
   try {
     const requestBody = {
       contents: [
@@ -17,7 +20,7 @@ export const generateContent = async (detected) => {
         temperature: 1,
       },
     };
-
+    
     const apiEndpoint =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyC9XECcmCPDvZ7ljKkDH7OUV5MP_65Sb_M';
 
@@ -34,9 +37,25 @@ export const generateContent = async (detected) => {
     }
 
     console.log('Generated Content:', generatedText);
+    await getSpecies(detected, userId, generatedText);
     return generatedText; // Return the generated text for use
   } catch (error) {
     console.error('Error:', error.message);
     throw error;
+  }
+}
+/**
+ * Function to store the species and user ID in Firestore.
+ * @param {string} species - The identified species.
+ * @param {string} userId - The user ID.
+ * 
+ */
+export const getSpecies = async (species, userId,genContent) => {
+  try {
+    const newData = { species, userId,genContent}; // Data structure
+    await addDoc(collection(FIRESTORE_DB, 'users'), newData); // Add to Firestore
+    console.log('Species and user ID added to Firestore:', newData);
+  } catch (error) {
+    console.error('Error adding species to Firestore:', error.message);
   }
 };
