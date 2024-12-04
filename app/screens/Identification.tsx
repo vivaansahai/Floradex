@@ -1,3 +1,4 @@
+import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import axios from 'axios';
 import { Alert } from 'react-native';
@@ -63,5 +64,41 @@ export const identifyPlant = async (imageUri) => {
       { text: 'OK', onPress: () => console.log('Error alert closed') },
     ]);
     throw error;
+  }
+};
+
+/**
+ * Function to pick an image using the ImagePicker and identify the plant.
+ */
+export const pickImageAndIdentifyPlant = async () => {
+  try {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (result.canceled) {
+      console.log('Image selection cancelled');
+      Alert.alert('No Image Selected', 'Please select an image to identify a plant.', [
+        { text: 'OK', onPress: () => console.log('No image alert closed') },
+      ]);
+      return;
+    }
+
+    const imageUri = result.assets[0].uri;
+    console.log('Selected Image URI:', imageUri);
+
+    // Call the identifyPlant function with the selected image URI
+    const identificationResult = await identifyPlant(imageUri);
+
+    console.log('Plant Identification Result:', identificationResult);
+
+    return identificationResult;
+  } catch (error) {
+    console.error('Error during image picking and identification:', error.message);
+    Alert.alert('Error', 'An error occurred while identifying the plant. Please try again.', [
+      { text: 'OK', onPress: () => console.log('Error alert closed') },
+    ]);
   }
 };

@@ -14,7 +14,7 @@ import { ThemedButton } from 'react-native-really-awesome-button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '@/hooks/styles';
 import PagerView from 'react-native-pager-view';
-import { identifyPlant } from './Identification'; // Import the identifyPlant function
+import { identifyPlant, pickImageAndIdentifyPlant } from './Identification'; // Import the identifyPlant function
 import { generateContent as fetchPlantInfo } from '../Utilities/location';
 
 const requestCameraPermission = async (
@@ -35,7 +35,7 @@ const requestCameraPermission = async (
     );
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('Camera permission granted, executing API call...');
-      const { species, imageUri } = await identifyPlant(); // Destructure species and imageUri
+      const { species, imageUri } = await pickImageAndIdentifyPlant(); // Destructure species and imageUri
       if(species!=null)
       {
         setSelectedImage(imageUri); // Set the selected image in state
