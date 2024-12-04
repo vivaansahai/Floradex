@@ -27,7 +27,7 @@ export default function App() {
     });
     },[])
   return (
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Login" screenOptions={{headerShown:false}}>
         {user ? <Stack.Screen name="InsideLayout" component={InsideLayout} options={{headerShown:false}} /> :<Stack.Screen name="Login" component={Login} options={{headerShown:false}}  />}
       </Stack.Navigator>
   );

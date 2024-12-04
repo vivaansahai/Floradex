@@ -36,12 +36,15 @@ const requestCameraPermission = async (
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('Camera permission granted, executing API call...');
       const { species, imageUri } = await identifyPlant(); // Destructure species and imageUri
-      setSelectedImage(imageUri); // Set the selected image in state
+      if(species!=null)
+      {
+        setSelectedImage(imageUri); // Set the selected image in state
       const response = await fetchPlantInfo(species);
 
       // Set content and show modal
       setGeneratedContent(formatBoldText(response));
       setModalVisible(true);
+    }
     } else {
       console.log('Camera permission denied');
     }
@@ -49,6 +52,8 @@ const requestCameraPermission = async (
     console.warn(err);
   }
 };
+
+
 
 const formatBoldText = (text) => {
   const parts = text.split(/(\*\*.*?\*\*)/); // Split text by **bold segments**
@@ -109,7 +114,7 @@ export default function HomeScreen() {
         Detect Plant Species
       </ThemedButton>
       {/* Updated carousel with plant-specific content */}
-      <PagerView style={[styles.pagerView, { marginTop: 40 }]} initialPage={0}>
+      {/* <PagerView style={[styles.pagerView, { marginTop: 40 }]} initialPage={0}>
         <View style={[styles.roundedBox, { padding: 20 }]} key="1">
           <Image
             source={require('../../assets/images/carousel_1.jpg')} // Moneyplant image
@@ -140,7 +145,7 @@ export default function HomeScreen() {
             Jade Plant: A popular succulent, the Jade Plant is easy to care for and is thought to symbolize prosperity and friendship.
           </Text>
         </View>
-      </PagerView>
+      </PagerView> */}
 
       {/* Modal to display generated content */}
       <Modal
@@ -178,24 +183,41 @@ const modalStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dimmed background
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
+    width: '90%',
+    maxHeight: '80%',
+    backgroundColor: 'black', // Black background for the modal
+    borderRadius: 15,
     padding: 20,
-    elevation: 5,
+    elevation: 10, // Shadow for Android
+    shadowColor: '#fff', // Light shadow for better visibility
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderWidth: 2, // Border width
+    borderColor: 'white', // White border color for contrast
   },
   selectedImage: {
     width: '100%',
     height: 200,
     marginBottom: 20,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'white', // White border for the image
   },
   text: {
     marginBottom: 10,
     fontSize: 16,
     lineHeight: 24,
+    color: 'white', // White text for contrast
+    textAlign: 'justify',
+  },
+  closeButtonContainer: {
+    marginTop: 10,
+    alignItems: 'center',
   },
 });
+
+
