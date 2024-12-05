@@ -73,6 +73,7 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    paddingTop: 20
   },
   image: {
     width: 200,

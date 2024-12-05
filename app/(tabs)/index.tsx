@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../screens/Login';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
-import { AnimatedWaveBottomTab } from './_layout';
+import { SimpleBottomTab } from './_layout';
 
 const Stack = createStackNavigator();
 
@@ -13,7 +13,7 @@ function InsideLayout() {
   return (
     
     <InsideStack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
-      <InsideStack.Screen name="Home" component={AnimatedWaveBottomTab} />
+      <InsideStack.Screen name="Home" component={SimpleBottomTab} />
     </InsideStack.Navigator>
   );
 }

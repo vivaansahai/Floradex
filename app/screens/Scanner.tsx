@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { identifyPlant } from './Identification';
-import { generateContent as fetchPlantInfo } from '../Utilities/location'; // Import fetchPlantInfo
+import { generateContent as fetchPlantInfo, generateContent } from '../Utilities/location'; // Import fetchPlantInfo
 import { getAuth } from 'firebase/auth';
 
 const Scanner: React.FC = () => {
@@ -59,12 +59,12 @@ const Scanner: React.FC = () => {
         setCapturedImage(photo.uri);
 
         // Identify the plant using the captured image
-        const response = await identifyPlant(photo.uri,getAuth().currentUser?.uid);
+        const response = await identifyPlant(photo.uri);
         if (response?.species) {
           const plantName = response.species;
 
           // Fetch plant information and update content
-          const plantDescription = await fetchPlantInfo(plantName);
+          const plantDescription = await generateContent(plantName, getAuth().currentUser?.uid);
           formatAndSetContent(plantDescription);
 
           setModalVisible(true);
@@ -99,7 +99,7 @@ const Scanner: React.FC = () => {
             style={styles.button}
             onPress={toggleCameraFacingAndTakePicture}
           >
-            <Text style={styles.text}>Take Picture</Text>
+            <Text style={styles.text}>Scan</Text>
           </TouchableOpacity>
         </View>
       </CameraView>

@@ -9,21 +9,24 @@ import {
   Modal,
   Button,
   ScrollView,
+  ActivityIndicator, // Import ActivityIndicator
 } from 'react-native';
 import { ThemedButton } from 'react-native-really-awesome-button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '@/hooks/styles';
-import PagerView from 'react-native-pager-view';
 import { identifyPlant, pickImageAndIdentifyPlant } from './Identification'; // Import the identifyPlant function
 import { generateContent as fetchPlantInfo } from '../Utilities/location';
 import { getAuth } from 'firebase/auth';
+import Carousel from '@/components/carousel';
 
 const requestCameraPermission = async (
   setModalVisible,
   setGeneratedContent,
-  setSelectedImage
+  setSelectedImage,
+  setLoading
 ) => {
   try {
+    setLoading(true); // Show the loading indicator
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
       {
@@ -37,24 +40,22 @@ const requestCameraPermission = async (
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('Camera permission granted, executing API call...');
       const { species, imageUri } = await pickImageAndIdentifyPlant(); // Destructure species and imageUri
-      if(species!=null)
-      {
+      if (species != null) {
         setSelectedImage(imageUri); // Set the selected image in state
-      const response = await fetchPlantInfo(species,getAuth().currentUser?.uid);
-
-      // Set content and show modal
-      setGeneratedContent(formatBoldText(response));
-      setModalVisible(true);
-    }
+        const response = await fetchPlantInfo(species, getAuth().currentUser?.uid);
+        // Set content and show modal
+        setGeneratedContent(formatBoldText(response));
+        setModalVisible(true);
+      }
     } else {
       console.log('Camera permission denied');
     }
   } catch (err) {
     console.warn(err);
+  } finally {
+    setLoading(false); // Hide the loading indicator
   }
 };
-
-
 
 const formatBoldText = (text) => {
   const parts = text.split(/(\*\*.*?\*\*)/); // Split text by **bold segments**
@@ -75,6 +76,7 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [generatedContent, setGeneratedContent] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null); // State to store the selected image URI
+  const [loading, setLoading] = useState(false); // Loading state
 
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
@@ -89,65 +91,37 @@ export default function HomeScreen() {
       ]}
     >
       <Text style={[styles.title, isDarkMode ? styles.darkText : styles.lightText]}>
-        Welcome to Plant Species Detection!
+        FLORADEX
       </Text>
       <Image
         source={require('../../assets/images/Plant.png')} // Main banner image
         style={styles.image}
         resizeMode="contain"
       />
-      <ThemedButton
-        name="rick"
-        type="primary"
-        onPress={() =>
-          requestCameraPermission(
-            setModalVisible,
-            setGeneratedContent,
-            setSelectedImage
-          )
-        } // Execute API call on button press
-        backgroundColor="lightgreen"
-        textColor="green"
-        borderColor="lightgreen"
-        activityColor="green"
-        raiseLevel={2}
-      >
-        Detect Plant Species
-      </ThemedButton>
-      {/* Updated carousel with plant-specific content */}
-      {/* <PagerView style={[styles.pagerView, { marginTop: 40 }]} initialPage={0}>
-        <View style={[styles.roundedBox, { padding: 20 }]} key="1">
-          <Image
-            source={require('../../assets/images/carousel_1.jpg')} // Moneyplant image
-            style={[styles.image, { width: '100%', height: 300 }]}
-            resizeMode="contain"
-          />
-          <Text style={[styles.slideText, isDarkMode ? styles.darkText : styles.lightText]}>
-            Moneyplant: Known for its air-purifying qualities, the Moneyplant is believed to bring good luck and positive energy to your home.
-          </Text>
-        </View>
-        <View style={styles.roundedBox} key="2">
-          <Image
-            source={require('../../assets/images/carousel_2.jpg')} // Tulsiplant image
-            style={styles.image}
-            resizeMode="contain"
-          />
-          <Text style={[styles.slideText, isDarkMode ? styles.darkText : styles.lightText]}>
-            Tulsi Plant: Revered in many cultures, Tulsi is a medicinal herb with numerous health benefits and a natural immunity booster.
-          </Text>
-        </View>
-        <View style={styles.roundedBox} key="3">
-          <Image
-            source={require('../../assets/images/carousel_3.jpg')} // Jadeplant image
-            style={styles.image}
-            resizeMode="contain"
-          />
-          <Text style={[styles.slideText, isDarkMode ? styles.darkText : styles.lightText]}>
-            Jade Plant: A popular succulent, the Jade Plant is easy to care for and is thought to symbolize prosperity and friendship.
-          </Text>
-        </View>
-      </PagerView> */}
-
+      {loading ? (
+        <ActivityIndicator size="large" color="green" style={{ marginTop: 20 }} />
+      ) : (
+        <ThemedButton
+          name="rick"
+          type="primary"
+          onPress={() =>
+            requestCameraPermission(
+              setModalVisible,
+              setGeneratedContent,
+              setSelectedImage,
+              setLoading
+            )
+          } // Execute API call on button press
+          backgroundColor="lightgreen"
+          textColor="green"
+          borderColor="lightgreen"
+          activityColor="green"
+          raiseLevel={2}
+        >
+          Detect Plant Species
+        </ThemedButton>
+      )}
+          <Carousel />
       {/* Modal to display generated content */}
       <Modal
         visible={modalVisible}
@@ -215,10 +189,4 @@ const modalStyles = StyleSheet.create({
     color: 'white', // White text for contrast
     textAlign: 'justify',
   },
-  closeButtonContainer: {
-    marginTop: 10,
-    alignItems: 'center',
-  },
 });
-
-
