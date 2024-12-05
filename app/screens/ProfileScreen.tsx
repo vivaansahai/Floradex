@@ -6,7 +6,7 @@ import { ThemedButton } from 'react-native-really-awesome-button';
 const ProfileScreen = () => {
   // Sample data
   const profileData = {
-    name: 'John Doe',
+    name: 'Vivaan Sahai',
     profilePicUrl: 'https://www.w3schools.com/w3images/avatar2.png', // Example profile picture URL
     scanCount: 120,
     speciesDiscovered: 30,
@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
   },
   profileSection: {
     alignItems: 'center',
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#ffff',
   },
   statsRow: {
     flexDirection: 'row',
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
   statBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f1f1f1',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     width: '45%',
     paddingVertical: 15,
     borderRadius: 10,
@@ -110,20 +112,20 @@ const styles = StyleSheet.create({
   statText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#ffff',
   },
   statLabel: {
     fontSize: 14,
-    color: '#888',
+    color: '#ffff',
   },
   settingItem: {
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#ffff',
   },
   settingText: {
     fontSize: 16,
-    color: '#333',
+    color: '#ffff',
   },
 });
 

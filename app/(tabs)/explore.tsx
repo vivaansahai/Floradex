@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#F0F4F7',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   header: {
     width: '100%',
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   box: {
     width: '30%', // Width of each box (3 columns)
     height: 150, // Height of each box increased
-    backgroundColor: '#000000', // Black background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background
     marginBottom: 10, // Space between rows
     justifyContent: 'center', // Center text vertically
     alignItems: 'center', // Center text horizontally

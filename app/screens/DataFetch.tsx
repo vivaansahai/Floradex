@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { FIRESTORE_DB } from '@/FirebaseConfig'; // Replace with your actual Firebase config import
 import { getAuth } from 'firebase/auth'; // Import Firebase Authentication
-import {
-    collection,
-    getDocs,
-    deleteDoc,
-    doc,
-} from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 const DataFetch = () => {
-    const [data, setData] = useState<any[]>([]); // Set data type to an array of objects that hold species and document ID
+    const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const collectionName = 'users';
 
-    // Get current user's UID from Firebase Authentication
     const getCurrentUserId = () => {
         const auth = getAuth();
         const user = auth.currentUser;
         return user ? user.uid : null;
     };
 
-    // Fetch data from Firestore and filter by userId
     const fetchData = async () => {
         setLoading(true);
         const currentUserId = getCurrentUserId();
@@ -35,16 +28,15 @@ const DataFetch = () => {
         try {
             const querySnapshot = await getDocs(collection(FIRESTORE_DB, collectionName));
 
-            // Filter the fetched documents by current user's UID and extract species and ID
             const fetchedData = querySnapshot.docs
                 .map((doc) => ({
-                    id: doc.id, // Document ID
+                    id: doc.id,
                     species: doc.data().species,
-                    genContent: doc.data().genContent, // Extract "species" and "genContent" fields
+                    genContent: doc.data().genContent,
                 }))
-                .filter((docData) => docData.species !== undefined); // Filter out documents without species
+                .filter((docData) => docData.species !== undefined);
 
-            setData(fetchedData); // Set only species data in state, along with their IDs
+            setData(fetchedData);
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -52,68 +44,62 @@ const DataFetch = () => {
         }
     };
 
-    // Delete data from Firestore
     const deleteData = async (id: string) => {
         try {
             const docRef = doc(FIRESTORE_DB, collectionName, id);
             await deleteDoc(docRef);
             console.log('Document deleted:', id);
-            fetchData(); // Refresh data after deleting
+            fetchData();
         } catch (error) {
             console.error('Error deleting document:', error);
         }
     };
 
-    // Function to format bold text
     const formatBoldText = (text) => {
-        const parts = text.split(/(\*\*.*?\*\*)/); // Split text by **bold segments**
+        if (!text) {
+            return '';
+        }
+
+        const parts = text.split(/(\*\*.*?\*\*)/);
+
         return parts.map((part, index) => {
             if (part.startsWith('**') && part.endsWith('**')) {
-                // Remove ** and return bold Text component
                 return (
-                    <Text key={index} style={{ fontWeight: 'bold' }}>
+                    <Text key={index} style={{ fontWeight: 'bold', color: '#ffff' }}>
                         {part.slice(2, -2)}
                     </Text>
                 );
             }
-            return <Text key={index}>{part}</Text>; // Regular text
+            return <Text key={index} style={{ color: '#ffff' }}>{part}</Text>;
         });
     };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Previous Scans</Text>
 
-            {/* Refresh Button */}
             <TouchableOpacity
                 style={styles.refreshButton}
-                onPress={fetchData} // Refresh the data when pressed
+                onPress={fetchData}
             >
                 <Text style={styles.refreshButtonText}>Refresh</Text>
             </TouchableOpacity>
 
             {loading ? (
-                <Text>Loading...</Text>
+                <Text style={styles.loadingText}>Loading...</Text>
             ) : (
                 <FlatList
                     data={data}
-                    keyExtractor={(item) => item.id} // Use document ID as key
+                    keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <View style={styles.item}>
-                            {/* Display species normally */}
                             <Text style={styles.itemText}>{item.species}</Text>
-                            <Text style={styles.itemText}>{item.genContent}</Text>
-                            {/* Pass genContent through formatBoldText */}
-                            {/* <Text style={styles.itemText}>
+                            {<Text style={styles.itemText}>
                                 {formatBoldText(item.genContent)}
-                            </Text> */}
+                            </Text>}
                             <TouchableOpacity
                                 style={styles.deleteButton}
-                                onPress={() => deleteData(item.id)} // Pass the document ID to delete
+                                onPress={() => deleteData(item.id)}
                             >
                                 <Text style={styles.deleteButtonText}>Delete</Text>
                             </TouchableOpacity>
@@ -129,44 +115,55 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
+        color: '#ffff',
+        textAlign: 'center',
     },
     item: {
         padding: 16,
-        borderWidth: 1,
-        borderColor: '#ccc',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         borderRadius: 8,
         marginBottom: 8,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
     },
     itemText: {
         fontSize: 16,
+        color: '#ffff',
     },
     deleteButton: {
-        backgroundColor: 'red',
+        backgroundColor: '#B22222',
         padding: 8,
         borderRadius: 8,
+        marginTop: 8,
     },
     deleteButtonText: {
-        color: 'white',
+        color: '#ffff',
         fontSize: 14,
+        textAlign: 'center',
     },
     refreshButton: {
-        backgroundColor: '#4CAF50',
+        backgroundColor: '#32CD32',
         padding: 10,
         borderRadius: 8,
         marginBottom: 16,
         alignItems: 'center',
     },
     refreshButtonText: {
-        color: 'white',
+        color: '#ffff',
         fontSize: 16,
+    },
+    loadingText: {
+        fontSize: 18,
+        color: '#ffff',
+        textAlign: 'center',
     },
 });
 
